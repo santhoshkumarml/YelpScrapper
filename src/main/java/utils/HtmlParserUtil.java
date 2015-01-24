@@ -50,12 +50,12 @@ public class HtmlParserUtil {
 		Document doc = Jsoup.parse(bnssHtmlFile, "UTF-8");
 
 		Element bnssStory = doc.getElementsByClass(
-				"contentbox").first().getElementsByClass(
+				"get-directions-content").first().getElementsByClass(
 						"ending-point").first().getElementsByClass("media-story").first();
 
 		Element bnssLink = bnssStory.getElementsByClass("biz-name").first();
 		String bnssUrl = bnssLink.attr("href");
-		bnssUrl.replace("/biz/", "");
+		bnssUrl = bnssUrl.replace("/biz/", "");
 
 		String bnssName = bnssLink.text();
 		String address = bnssStory.getElementsByTag("address").first().text();
@@ -113,11 +113,11 @@ public class HtmlParserUtil {
 			return recommendedReviews;	
 		}
 		File[] reviewFiles = recFolder.listFiles();
-		for(int i=0;i<reviewFiles.length;i++) {
-			Document doc = Jsoup.parse(reviewFiles[i], "UTF-8");
+		for(int j=0;j<reviewFiles.length;j++) {
+			Document doc = Jsoup.parse(reviewFiles[j], "UTF-8");
 			Elements reviewList = doc.getElementsByClass("review-list");
 			Elements reviews = reviewList.get(0).getElementsByClass("review");
-			for(int j=0;j<reviews.size();j++) {
+			for(int i=0;i<reviews.size();i++) {
 				Elements usrDisplay = 
 						reviews.get(i).getElementsByClass(
 								"user-name").first().getElementsByClass(
@@ -141,7 +141,7 @@ public class HtmlParserUtil {
 						"data-hovercard-id").toString();
 				String authorName =  usrDisplay.first().text();
 				String usrProfileId = usrDisplay.first().attr("href");
-				usrProfileId.replace("/user_details?userid=", "");
+				usrProfileId = usrProfileId.replace("/user_details?userid=", "");
 
 				assert !metaDataHoverIdForUsr.isEmpty();
 
@@ -175,13 +175,13 @@ public class HtmlParserUtil {
 
 		File[] reviewFiles = nonRecFolder.listFiles();
 
-		for(int i=0;i<reviewFiles.length;i++) {
+		for(int j=0;j<reviewFiles.length;j++) {
 
-			Document doc = Jsoup.parse(reviewFiles[i], "UTF-8");
+			Document doc = Jsoup.parse(reviewFiles[j], "UTF-8");
 
 			Elements reviewList = doc.getElementsByClass("not-recommended-reviews");
 			Elements reviews = reviewList.get(0).getElementsByClass("review");
-			for(int j=0;j<reviews.size();j++) {
+			for(int i=0;i<reviews.size();i++) {
 				Elements usrDisplay = 
 						reviews.get(i).getElementsByClass(
 								"user-name").first().getElementsByClass(

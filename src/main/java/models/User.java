@@ -8,6 +8,13 @@ public class User {
 	int reviewCount;
 	String usrProfileId = "";
 	
+	public String getUsrProfileId() {
+		return usrProfileId;
+	}
+	public void setUsrProfileId(String usrProfileId) {
+		this.usrProfileId = usrProfileId;
+	}
+	
 	public String getName() {
 		return name;
 	}

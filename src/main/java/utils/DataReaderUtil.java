@@ -41,14 +41,14 @@ public class DataReaderUtil {
 					FileReader reader = new FileReader(fileName);
 					JSONParser jsonParser = new JSONParser();
 					JSONObject businessObject = (JSONObject) jsonParser.parse(reader);
-					
+
 					businessObject.put("isCoreBnss", "True");
-					
+
 					String outputFileName = outputDirName+fileName.split(inputDirName)[1];
-					
+
 					File outFile = new File(outputFileName);
 					File outFileDir = outFile.getParentFile();
-					
+
 					if(!outFileDir.exists()) {
 						outFileDir.mkdirs();						
 					}
@@ -97,19 +97,22 @@ public class DataReaderUtil {
 			FileReader reader = new FileReader(fileName);
 			JSONParser jsonParser = new JSONParser();
 			JSONObject businessObject = (JSONObject) jsonParser.parse(reader);
-			String street = (String)businessObject.get("street");
-			String addr = (String)businessObject.get("Address");
-			String url = (String)businessObject.get("URL");
-			Business restarunt = new Business();
-			restarunt.setAddress(addr);
-			restarunt.setName(fileName.replace(".txt", ""));
-			restarunt.setUrl(url);
-			restarunt.setStreet(street);
-			if (usrBnssRevws.getBusinesses().containsKey(Business.getId(restarunt))) {
+			String addr = (String)businessObject.get(HtmlParserUtil.BNSS_ADDRESS);
+			String url = (String)businessObject.get(HtmlParserUtil.BNSS_URL_SUBSTRING);
+			String bnssName = (String)businessObject.get(HtmlParserUtil.BNSS_NAME);
+			boolean isCoreBnss = Boolean.parseBoolean((String)businessObject.get(HtmlParserUtil.IS_CORE_BNSS));
+
+			Business bnss = new Business();
+			bnss.setAddress(addr);
+			bnss.setName(bnssName);
+			bnss.setUrl(url);
+			bnss.setCoreBnss(isCoreBnss);
+
+			if (usrBnssRevws.getBusinesses().containsKey(Business.getId(bnss))) {
 				return;
 			}
-			usrBnssRevws.getBusinesses().put(Business.getId(restarunt), restarunt);
-			readReviews(businessObject, restarunt, usrBnssRevws);
+			usrBnssRevws.getBusinesses().put(Business.getId(bnss), bnss);
+			readReviews(businessObject, bnss, usrBnssRevws);
 		} catch(IOException e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -127,17 +130,21 @@ public class DataReaderUtil {
 			while(recIterator.hasNext()) {
 				JSONObject reviewObject = recIterator.next(); 
 				User usr = new User();
-				String name = (String) reviewObject.get("Name");
-				String usrId = (String) reviewObject.get("usrId");
-				String location = (String) reviewObject.get("Place");
+				String name = (String) reviewObject.get(HtmlParserUtil.USR_NAME);
+				String usrId = (String) reviewObject.get(HtmlParserUtil.USR_ID);
+				String usrProfileId = (String) reviewObject.get(HtmlParserUtil.USR_PROFILE_ID);
+				String location = (String) reviewObject.get(HtmlParserUtil.USR_LOCATION);
 
-				String friendCountString = (String) reviewObject.get("friendCount");
-				String reviewCountString = (String) reviewObject.get("reviewCount");
+				String friendCountString = (String) reviewObject.get(HtmlParserUtil.USR_FRIEND_COUNT);
+				String reviewCountString = (String) reviewObject.get(HtmlParserUtil.USR_REVIEW_COUNT);
 				int friendCount = Integer.parseInt((friendCountString.split("[ ]+")[0]).trim());
 				int reviewCount = Integer.parseInt((reviewCountString.split("[ ]+")[0]).trim());
 
 				usr.setName(name);
 				usr.setLocation(location);
+				if(usrProfileId != null) {
+					usr.setUsrProfileId(usrProfileId);
+				}
 				usr.setUsrId(usrId);
 				usr.setFriendCount(friendCount);
 				usr.setReviewCount(reviewCount);
@@ -146,13 +153,15 @@ public class DataReaderUtil {
 				review.setUsrId(usrId);
 				review.setBnssId(restarunt.getUrl()+","+restarunt.getAddress());
 
-				String reviewComment = (String)reviewObject.get("ReviewComment");
-				String ratingString =  (String)reviewObject.get("Rating");
+				String reviewComment = (String)reviewObject.get(HtmlParserUtil.REVIEW_COMMENT);
+				String ratingString =  (String)reviewObject.get(HtmlParserUtil.REVIEW_RATING);
 				float rating = Float.parseFloat(ratingString);
+				String reviewDate = (String)reviewObject.get(HtmlParserUtil.REVIEW_DATE);
 
 				review.setRating(rating);
 				review.setReviewComment(reviewComment);
 				review.setRecommended(true);
+				review.setDate(reviewDate);
 
 				if(!usrBnssRevws.getUsers().containsKey(usr.getUsrId())) {
 					usrBnssRevws.getUsers().put(usrId, usr);
@@ -168,12 +177,12 @@ public class DataReaderUtil {
 			while(nonRecIterator.hasNext()) {
 				JSONObject reviewObject = nonRecIterator.next();
 				User usr = new User();
-				String name = (String) reviewObject.get("Name");
-				String usrId = (String) reviewObject.get("usrId");
-				String location = (String) reviewObject.get("Place");
+				String name = (String) reviewObject.get(HtmlParserUtil.USR_NAME);
+				String usrId = (String) reviewObject.get(HtmlParserUtil.USR_ID);
+				String location = (String) reviewObject.get(HtmlParserUtil.USR_LOCATION);
 
-				String friendCountString = (String) reviewObject.get("friendCount");
-				String reviewCountString = (String) reviewObject.get("reviewCount");
+				String friendCountString = (String) reviewObject.get(HtmlParserUtil.USR_FRIEND_COUNT);
+				String reviewCountString = (String) reviewObject.get(HtmlParserUtil.USR_REVIEW_COUNT);
 				int friendCount = Integer.parseInt((friendCountString.split("[ ]+")[0]).trim());
 				int reviewCount = Integer.parseInt((reviewCountString.split("[ ]+")[0]).trim());
 
@@ -187,13 +196,16 @@ public class DataReaderUtil {
 				review.setUsrId(usrId);
 				review.setBnssId(Business.getId(restarunt));
 
-				String reviewComment = (String)reviewObject.get("ReviewComment");
-				String ratingString =  (String)reviewObject.get("Rating");
+				String reviewComment = (String)reviewObject.get(HtmlParserUtil.REVIEW_COMMENT);
+				String ratingString =  (String)reviewObject.get(HtmlParserUtil.REVIEW_RATING);
 				float rating = Float.parseFloat(ratingString);
+
+				String reviewDate = (String)reviewObject.get(HtmlParserUtil.REVIEW_DATE);
 
 				review.setRating(rating);
 				review.setReviewComment(reviewComment);
 				review.setRecommended(false);
+				review.setDate(reviewDate);
 
 				if(!usrBnssRevws.getUsers().containsKey(usr.getUsrId())) {
 					usrBnssRevws.getUsers().put(usrId, usr);
