@@ -11,6 +11,9 @@ import org.jsoup.select.Elements;
 
 public class CrawlerUtil {
 
+	public static final String NON_RECOMMENDED_REVIEWS_FOLDER = "non-rec";
+	public static final String RECOMMENDED_REVIEWS_FOLDER = "rec";
+
 	public static void crawlBusinessPage(Business bnss, String dirName) throws Exception{
 		String url =  "http://www.yelp.com";
 		url += bnss.getUrl();
@@ -58,7 +61,7 @@ public class CrawlerUtil {
 	
 			String bnssUrl = bnss.getUrl().replace("/biz/", "");
 			String nonrecFileName =  dirName+File.separatorChar+bnssUrl+
-					File.separatorChar+"non-rec"+File.separatorChar+count+".html";
+					File.separatorChar+NON_RECOMMENDED_REVIEWS_FOLDER+File.separatorChar+count+".html";
 	
 	
 			File nonrecFile = new File(nonrecFileName);
@@ -104,7 +107,7 @@ public class CrawlerUtil {
 	
 			String bnssUrl = bnss.getUrl().replace("/biz/", "");
 			String recFileName =  dirName+File.separatorChar+bnssUrl+
-					File.separatorChar+"rec"+File.separatorChar+count+".html";
+					File.separatorChar+RECOMMENDED_REVIEWS_FOLDER+File.separatorChar+count+".html";
 	
 			File recFile = new File(recFileName);
 			File parentFile = recFile.getParentFile();
