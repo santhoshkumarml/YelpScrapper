@@ -1,7 +1,6 @@
 package utils;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,24 +39,31 @@ public class HtmlParserUtil {
 		String bnssHtmlFileName = htmlBnssDirName+File.separatorChar+"bnss.html";
 
 		File bnssHtmlFile = new File(bnssHtmlFileName);
-		
-		Document doc = Jsoup.parse(bnssHtmlFile, "UTF-8");
-		
-		Element bnssStory = doc.getElementsByClass(
-				"contentbox").first().getElementsByTag(
-						"ending-point").first().getElementsByTag("media-story").first();
 
-		Element bnssLink = bnssStory.getElementsByTag("biz-name").first();
+		File dataBnssFile = new File(
+				dataBnssDirName+File.separatorChar+
+				bnssHtmlFile.getParentFile().getName()+".txt");
+		if(dataBnssFile.exists()) {
+			return;
+		}
+
+		Document doc = Jsoup.parse(bnssHtmlFile, "UTF-8");
+
+		Element bnssStory = doc.getElementsByClass(
+				"contentbox").first().getElementsByClass(
+						"ending-point").first().getElementsByClass("media-story").first();
+
+		Element bnssLink = bnssStory.getElementsByClass("biz-name").first();
 		String bnssUrl = bnssLink.attr("href");
-		bnssUrl.replaceAll("/biz/", "");
+		bnssUrl.replace("/biz/", "");
 
 		String bnssName = bnssLink.text();
 		String address = bnssStory.getElementsByTag("address").first().text();
-		
-		String parentName = bnssHtmlFile.getParentFile().getName();
-		
+
+		String parentName = new File(htmlBnssDirName).getParentFile().getName();
+
 		boolean isCoreBnss = false;
-		
+
 		if(parentName.contains("core")) {
 			isCoreBnss = true;
 		}
@@ -84,10 +90,6 @@ public class HtmlParserUtil {
 
 		business.put(recommendedJSONReviewConstant, reccomendedReviewArray);
 		business.put(nonrecommendedJSONReviewConstant, nonReccomendedReviewArray);
-
-		File dataBnssFile = new File(
-				dataBnssDirName+File.separatorChar+
-				htmlBnssDirName+".txt");
 
 		File parentFile = dataBnssFile.getParentFile();
 
@@ -139,7 +141,7 @@ public class HtmlParserUtil {
 						"data-hovercard-id").toString();
 				String authorName =  usrDisplay.first().text();
 				String usrProfileId = usrDisplay.first().attr("href");
-				usrProfileId.replaceAll("/user_details?userid=", "");
+				usrProfileId.replace("/user_details?userid=", "");
 
 				assert !metaDataHoverIdForUsr.isEmpty();
 
@@ -168,7 +170,7 @@ public class HtmlParserUtil {
 		File nonRecFolder = new File(htmlBnssDirName+File.separatorChar+
 				CrawlerUtil.NON_RECOMMENDED_REVIEWS_FOLDER);
 		if(!nonRecFolder.exists()) {
-			return notRecommendedReviews;	
+			return notRecommendedReviews;
 		}
 
 		File[] reviewFiles = nonRecFolder.listFiles();
@@ -177,7 +179,7 @@ public class HtmlParserUtil {
 
 			Document doc = Jsoup.parse(reviewFiles[i], "UTF-8");
 
-			Elements reviewList = doc.getElementsByClass("review-list");
+			Elements reviewList = doc.getElementsByClass("not-recommended-reviews");
 			Elements reviews = reviewList.get(0).getElementsByClass("review");
 			for(int j=0;j<reviews.size();j++) {
 				Elements usrDisplay = 

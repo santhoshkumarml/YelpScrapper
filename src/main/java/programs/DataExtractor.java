@@ -1,5 +1,7 @@
 package programs;
 
+import java.io.File;
+
 import utils.HtmlParserUtil;
 
 public class DataExtractor {
@@ -8,7 +10,11 @@ public class DataExtractor {
 		String htmlBnssDirName = args[0];
 		String bnssOutputDir = args[1];
 		try {
-			HtmlParserUtil.parseBnssPage(htmlBnssDirName, bnssOutputDir);	
+			File htmlBnssDirFile = new File(htmlBnssDirName);
+			File[] bnssHtmlFiles = htmlBnssDirFile.listFiles();
+			for(int i=0;i<bnssHtmlFiles.length;i++) {
+				HtmlParserUtil.parseBnssPage(bnssHtmlFiles[i].getAbsolutePath(), bnssOutputDir);
+			}
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
