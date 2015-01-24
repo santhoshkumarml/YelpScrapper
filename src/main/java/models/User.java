@@ -6,6 +6,8 @@ public class User {
 	String location;
 	int friendCount;
 	int reviewCount;
+	String usrProfileId = "";
+	
 	public String getName() {
 		return name;
 	}

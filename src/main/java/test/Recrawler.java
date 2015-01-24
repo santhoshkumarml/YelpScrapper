@@ -1,7 +1,6 @@
 package test;
 
 import java.io.File;
-import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,15 +13,13 @@ import models.UsrBnssRevws;
 
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
+import utils.CrawlerUtil;
 import utils.DataReaderUtil;
 import utils.GraphUtil;
 
 public class Recrawler {
-	private static String DIR_NAME = "";
+	public static String DIR_NAME = "";
 
 	public static void main(String[] args) {
 		String dirName = args[0];
@@ -126,120 +123,12 @@ public class Recrawler {
 				continue;
 			}
 			try {
-				crawlBusinessPage(bnss);
-				crawlNotRecReviewPages(bnss);
-				crawlRecReviewPages(bnss);
+				CrawlerUtil.crawlBusinessPage(bnss, DIR_NAME);
+				CrawlerUtil.crawlNotRecReviewPages(bnss, DIR_NAME);
+				CrawlerUtil.crawlRecReviewPages(bnss, DIR_NAME);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
-		}
-	}
-
-	public static void crawlBusinessPage(Business bnss) throws Exception{
-		String url =  "http://www.yelp.com";
-		url += bnss.getUrl();
-		Document doc = Jsoup.connect(url).timeout(60*1000).get();
-		Thread.sleep(1000);
-		String bnssUrl = bnss.getUrl().replace("/biz/", "");
-		String fileName =  DIR_NAME+File.separatorChar+bnssUrl+
-				File.separatorChar+"bnss.html";
-
-		File file = new File(fileName);
-		File parentFile = file.getParentFile();
-		if(!parentFile.exists()) {
-			parentFile.mkdirs();
-		}
-		PrintWriter writer = new PrintWriter(file, "UTF-8");
-		writer.println(doc.outerHtml());
-		writer.flush();
-		writer.close();
-	}
-
-	public static void crawlRecReviewPages(Business bnss) throws Exception {
-		int count = 0;
-		while(Boolean.TRUE) {
-			String url =  "http://www.yelp.com";
-			//Document doc  = null;
-			url += bnss.getUrl()+ "?sort_by=date_desc&start=" + count;
-
-			Document doc = Jsoup.connect(url).timeout(60*1000).get();
-
-			//String htmlPage = NYCYelpScrapper.getHtmlPage(url);
-			Thread.sleep(1000);
-
-			//doc = Jsoup.parse(htmlPage);
-
-			Elements reviewList = doc.getElementsByClass("review-list");
-			if(reviewList.size() == 0) {
-				return;
-			}
-			Elements reviews = reviewList.get(0).getElementsByClass("review");
-			if(reviews.size() == 0) {
-				return;
-			}
-
-			count+=reviews.size();
-
-			String bnssUrl = bnss.getUrl().replace("/biz/", "");
-			String recFileName =  DIR_NAME+File.separatorChar+bnssUrl+
-					File.separatorChar+"rec"+File.separatorChar+count+".html";
-
-			File recFile = new File(recFileName);
-			File parentFile = recFile.getParentFile();
-			if(!parentFile.exists()) {
-				parentFile.mkdirs();
-			}
-
-			PrintWriter writer = new PrintWriter(recFile, "UTF-8");
-			writer.println(doc.outerHtml());
-			writer.flush();
-			writer.close();
-		}
-	}
-
-	public static void crawlNotRecReviewPages(Business bnss) throws Exception {
-		int count = 0;
-		while(Boolean.TRUE) {
-			String url =  "http://www.yelp.com/not_recommended_reviews";
-			url += bnss.getUrl() +  "?not_recommended_start=" + count;
-			url = url.replace("/biz","");
-			//Document doc = null;
-			Document doc = Jsoup.connect(url).timeout(60*1000).get();
-			//String htmlPage = NYCYelpScrapper.getHtmlPage(url);
-			//doc = Jsoup.parse(htmlPage);
-
-			Thread.sleep(1000);
-
-			Elements reviewList = doc.getElementsByClass("not-recommended-reviews");
-			if(reviewList.size() == 0) {
-				return;
-			}
-			Elements reviews = reviewList.get(0).getElementsByClass("review");
-
-			if(reviews.size() == 0) {
-				return;
-			}
-
-			count+=reviews.size();
-
-			String bnssUrl = bnss.getUrl().replace("/biz/", "");
-			String nonrecFileName =  DIR_NAME+File.separatorChar+bnssUrl+
-					File.separatorChar+"non-rec"+File.separatorChar+count+".html";
-
-
-			File nonrecFile = new File(nonrecFileName);
-			File parentFile = nonrecFile.getParentFile();
-
-			if(!parentFile.exists()) {
-				parentFile.mkdirs();
-			}
-
-			PrintWriter writer = new PrintWriter(nonrecFile, "UTF-8");
-			writer.println(doc.outerHtml());
-			writer.flush();
-			writer.close();
-
-
 		}
 	}
 }
