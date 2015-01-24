@@ -32,15 +32,17 @@ public class HtmlParserUtil {
 	public static final String IS_CORE_BNSS = "isCoreBnss";
 
 
-	private static final String recommendedJSONReviewConstant = "Recommended";
-	private static final String nonrecommendedJSONReviewConstant = "NotRecommended";
+	public static final String recommendedJSONReviewConstant = "Recommended";
+	public static final String nonrecommendedJSONReviewConstant = "NotRecommended";
 
-	public void parseBnssPage(String htmlBnssDirName, String dataBnssDirName) throws Exception {
+	public static void parseBnssPage(String htmlBnssDirName, String dataBnssDirName) throws Exception {
 
 		String bnssHtmlFileName = htmlBnssDirName+File.separatorChar+"bnss.html";
 
 		File bnssHtmlFile = new File(bnssHtmlFileName);
+		
 		Document doc = Jsoup.parse(bnssHtmlFile, "UTF-8");
+		
 		Element bnssStory = doc.getElementsByClass(
 				"contentbox").first().getElementsByTag(
 						"ending-point").first().getElementsByTag("media-story").first();
@@ -51,6 +53,14 @@ public class HtmlParserUtil {
 
 		String bnssName = bnssLink.text();
 		String address = bnssStory.getElementsByTag("address").first().text();
+		
+		String parentName = bnssHtmlFile.getParentFile().getName();
+		
+		boolean isCoreBnss = false;
+		
+		if(parentName.contains("core")) {
+			isCoreBnss = true;
+		}
 
 		List<JSONObject> reccomendedReviews = parseRecPages(htmlBnssDirName);
 		List<JSONObject> nonReccomendedReviews = parseNonRecPages(htmlBnssDirName);
@@ -60,6 +70,7 @@ public class HtmlParserUtil {
 		business.put(BNSS_NAME, bnssName);
 		business.put(BNSS_ADDRESS, address);
 		business.put(BNSS_URL_SUBSTRING, bnssUrl);
+		business.put(IS_CORE_BNSS, new Boolean(isCoreBnss).toString());
 
 		JSONArray reccomendedReviewArray = new JSONArray();
 		JSONArray nonReccomendedReviewArray = new JSONArray();
@@ -91,7 +102,7 @@ public class HtmlParserUtil {
 		writer.close();
 	}
 
-	public List<JSONObject> parseRecPages(String htmlBnssDirName) throws Exception {
+	public static List<JSONObject> parseRecPages(String htmlBnssDirName) throws Exception {
 		List<JSONObject> recommendedReviews = new ArrayList<JSONObject>();
 
 		File recFolder = new File(htmlBnssDirName+File.separatorChar+
@@ -150,7 +161,7 @@ public class HtmlParserUtil {
 
 	}
 
-	public List<JSONObject> parseNonRecPages(String htmlBnssDirName) throws Exception{
+	public static List<JSONObject> parseNonRecPages(String htmlBnssDirName) throws Exception{
 
 		List<JSONObject> notRecommendedReviews = new ArrayList<JSONObject>();
 
