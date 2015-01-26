@@ -17,12 +17,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import jdk.nashorn.internal.runtime.ParserException;
 import models.Business;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -118,7 +118,7 @@ public class NYCYelpScrapper {
 			} catch(IOException e) {
 				e.printStackTrace();
 				System.exit(0);
-			} catch(ParserException e) {
+			} catch(ParseException e) {
 				e.printStackTrace();
 				System.exit(0);
 			}
