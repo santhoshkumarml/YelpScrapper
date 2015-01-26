@@ -84,20 +84,45 @@ public class Recrawler {
 		end = System.currentTimeMillis();
 		System.out.println("Stats Calculation Time:"+((end-start)/1000)+" Seconds");
 
-		Set<String> tobeReCrawledMixedReviewers = 
-				new HashSet<String>(usersWithMultipleMixedReviews);
-		Set<String> tobeReCrawledNotRecommendedReviewers =
-				new HashSet<String>(usersWithMultipleNotRecommendedReviewsAlone);
-		Set<String> crawledBusinesses = usrBnssRevws.getBusinesses().keySet();
-		Set<String> peripheralBusinesses = new HashSet<String>();
+		//recrawlCrawledBusinessPages(usrBnssRevws, crawledBusinesses);
+		crawlCoreUserPagesForPeripheralBnss(usrBnssRevws, usersWithMultipleMixedReviews);
 
-		recrawlCrawledBusinessPages(usrBnssRevws, crawledBusinesses);
 
-		//Map<String,Set<String>> 
-		Map<String,Set<String>> peripheralBnssUsrSetMap = 
-				getPeripheralBnssUsrSetMap(usrBnssRevws, tobeReCrawledMixedReviewers,
-						tobeReCrawledNotRecommendedReviewers,
-						crawledBusinesses, peripheralBusinesses);
+		//		Set<String> tobeReCrawledMixedReviewers = 
+		//				new HashSet<String>(usersWithMultipleMixedReviews);
+		//		Set<String> tobeReCrawledNotRecommendedReviewers =
+		//				new HashSet<String>(usersWithMultipleNotRecommendedReviewsAlone);
+		//		Set<String> crawledBusinesses = usrBnssRevws.getBusinesses().keySet();
+		//		Set<String> peripheralBusinesses = new HashSet<String>();
+		//
+		//		
+		//		
+		// 
+		//		Map<String,Set<String>> peripheralBnssUsrSetMap = 
+		//				getPeripheralBnssUsrSetMap(usrBnssRevws, tobeReCrawledMixedReviewers,
+		//						tobeReCrawledNotRecommendedReviewers,
+		//						crawledBusinesses, peripheralBusinesses);
+	}
+
+	private static void crawlCoreUserPagesForPeripheralBnss(UsrBnssRevws usrBnssRevws,
+			Set<String> usersWithMultipleMixedReviews) {
+		try {
+			for(String usrId : usersWithMultipleMixedReviews) {
+				User usr = usrBnssRevws.getUsers().get(usrId);
+
+				File usrFolder = new File(DIR_NAME+ File.separatorChar +"core_usr"+ File.separatorChar+usr.getUsrProfileId());
+
+				if(usrFolder.exists()) {
+					System.out.println("Already crawled User"+ usr.getName()+"-"+usr.getUsrProfileId());
+					continue;
+				}
+
+				CrawlerUtil.crawlUsrReviewPages(usr, DIR_NAME+File.separatorChar+"core_usr");
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public static Map<String,Set<String>> getPeripheralBnssUsrSetMap(
@@ -116,16 +141,16 @@ public class Recrawler {
 			count++;
 			Business bnss = usrBnssRevws.getBusinesses().get(bnssId);
 			String bnssUrl = bnss.getUrl().replace("/biz/", "");
-			String fileName =  DIR_NAME+File.separatorChar+bnssUrl+
+			String fileName =  DIR_NAME+File.separatorChar+"core_bnss"+File.separatorChar+bnssUrl+
 					File.separatorChar+"bnss.html";
 			File file = new File(fileName);
 			if(file.exists()) {
 				continue;
 			}
 			try {
-				CrawlerUtil.crawlBusinessPage(bnss, DIR_NAME);
-				CrawlerUtil.crawlNotRecReviewPages(bnss, DIR_NAME);
-				CrawlerUtil.crawlRecReviewPages(bnss, DIR_NAME);
+				CrawlerUtil.crawlBusinessPage(bnss, DIR_NAME+File.separatorChar+"core_bnss");
+				CrawlerUtil.crawlNotRecReviewPages(bnss, DIR_NAME+File.separatorChar+"core_bnss");
+				CrawlerUtil.crawlRecReviewPages(bnss, DIR_NAME+File.separatorChar+"core_bnss");
 			} catch(Exception e) {
 				e.printStackTrace();
 			}

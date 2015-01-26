@@ -72,17 +72,10 @@ public class DataReaderUtil {
 		UsrBnssRevws usrBnssRevws = new UsrBnssRevws();	
 		File baseDir = new File(dirName);
 		if (baseDir.exists() && baseDir.isDirectory()) {
-			File[] zipDirs = baseDir.listFiles(new FileFilter() {
-				public boolean accept(File pathname) {
-					return pathname.isDirectory();
-				}
-			});
 			List<String> restaruntFileNames = new ArrayList<String>();
-			for(int i=0;i<zipDirs.length;i++) {
-				File[] restaruntFileNamesForZip = zipDirs[i].listFiles();
-				for(int j=0;j<restaruntFileNamesForZip.length;j++) {
-					restaruntFileNames.add(restaruntFileNamesForZip[j].getAbsolutePath());
-				}
+			File[] restaruntFileNamesForZip = baseDir.listFiles();
+			for(int j=0;j<restaruntFileNamesForZip.length;j++) {
+				restaruntFileNames.add(restaruntFileNamesForZip[j].getAbsolutePath());
 			}
 			for(String restaruntFileName : restaruntFileNames) {
 				readDataForRestarunt(restaruntFileName, usrBnssRevws);
@@ -102,6 +95,9 @@ public class DataReaderUtil {
 			String bnssName = (String)businessObject.get(HtmlParserUtil.BNSS_NAME);
 			boolean isCoreBnss = Boolean.parseBoolean((String)businessObject.get(HtmlParserUtil.IS_CORE_BNSS));
 
+			//			if (url.contains("metropolis-mexican-grill-nutley")) {
+			//				System.out.println(fileName);
+			//			}
 			Business bnss = new Business();
 			bnss.setAddress(addr);
 			bnss.setName(bnssName);
@@ -109,6 +105,9 @@ public class DataReaderUtil {
 			bnss.setCoreBnss(isCoreBnss);
 
 			if (usrBnssRevws.getBusinesses().containsKey(Business.getId(bnss))) {
+				//System.out.println(bnss.getUrl()+"->"+bnss.getName()+"->"+bnss.getAddress());
+				//Business oldBnss = usrBnssRevws.getBusinesses().get(Business.getId(bnss));
+				//System.out.println(oldBnss.getUrl()+"->"+oldBnss.getName()+"->"+oldBnss.getAddress());
 				return;
 			}
 			usrBnssRevws.getBusinesses().put(Business.getId(bnss), bnss);
@@ -123,8 +122,8 @@ public class DataReaderUtil {
 	}
 
 	private static void readReviews(JSONObject businessObject, Business restarunt, UsrBnssRevws usrBnssRevws) {
-		JSONArray recommendedReviews = (JSONArray) businessObject.get("Reccomended");
-		JSONArray notRecommendedReviews = (JSONArray) businessObject.get("nonReccomended");
+		JSONArray recommendedReviews = (JSONArray) businessObject.get(HtmlParserUtil.recommendedJSONReviewConstant);
+		JSONArray notRecommendedReviews = (JSONArray) businessObject.get(HtmlParserUtil.nonrecommendedJSONReviewConstant);
 		if(recommendedReviews.size() > 0) {
 			Iterator<JSONObject> recIterator = recommendedReviews.iterator();
 			while(recIterator.hasNext()) {
@@ -143,6 +142,7 @@ public class DataReaderUtil {
 				usr.setName(name);
 				usr.setLocation(location);
 				if(usrProfileId != null) {
+					usrProfileId = usrProfileId.replace("http://www.yelp.com", "");
 					usr.setUsrProfileId(usrProfileId);
 				}
 				usr.setUsrId(usrId);
@@ -165,6 +165,21 @@ public class DataReaderUtil {
 
 				if(!usrBnssRevws.getUsers().containsKey(usr.getUsrId())) {
 					usrBnssRevws.getUsers().put(usrId, usr);
+				} else {
+					User oldUsr = usrBnssRevws.getUsers().get(usrId);
+					if(oldUsr.getUsrProfileId() == null ||
+							oldUsr.getUsrProfileId().isEmpty()) {
+						if(usrProfileId != null && !usrProfileId.isEmpty()) {
+							oldUsr.setUsrProfileId(usrProfileId);
+						}
+					}
+					if(usr.getReviewCount() > oldUsr.getReviewCount()) {
+						oldUsr.setReviewCount(reviewCount);
+					}
+
+					if(usr.getFriendCount() > oldUsr.getFriendCount()) {
+						oldUsr.setFriendCount(friendCount);
+					}
 				}
 
 				usrBnssRevws.getReviews().put(Review.getId(review), review);
@@ -209,6 +224,15 @@ public class DataReaderUtil {
 
 				if(!usrBnssRevws.getUsers().containsKey(usr.getUsrId())) {
 					usrBnssRevws.getUsers().put(usrId, usr);
+				} else {
+					User oldUsr = usrBnssRevws.getUsers().get(usrId);
+					if(usr.getReviewCount() > oldUsr.getReviewCount()) {
+						oldUsr.setReviewCount(reviewCount);
+					}
+
+					if(usr.getFriendCount() > oldUsr.getFriendCount()) {
+						oldUsr.setFriendCount(friendCount);
+					}
 				}
 
 				usrBnssRevws.getReviews().put(Review.getId(review), review);
