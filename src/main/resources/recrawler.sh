@@ -1,0 +1,1 @@
+java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=13001 -jar "../Recrawler-jar-with-dependencies.jar" $1 $2
