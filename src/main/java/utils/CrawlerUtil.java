@@ -138,7 +138,7 @@ public class CrawlerUtil {
 
 				Document doc = Jsoup.connect(usrReviewPageUrl).timeout(60*1000).get();
 
-				Thread.sleep(500);
+				Thread.sleep(1000);
 
 				Element reviewList = doc.getElementById("user_main_content");
 
