@@ -147,7 +147,7 @@ public class CrawlerUtil {
 						System.out.println("No Reviews - something wrong-> Usr:"+usr.getUsrProfileId()+
 								"->"+usr.getName()+"Crawled Review Count:"+count+
 								" Metadata Review Count:"+usr.getReviewCount());
-						System.exit(0);
+						//System.exit(0);
 					}
 					return;
 				}
