@@ -159,7 +159,7 @@ public class CrawlerUtil {
 						System.out.println("Less Crawled count "
 								+ "something wrong-> Usr:"+usr.getUsrProfileId()+"->"+usr.getName()
 								+"Crawled Review Count:"+count+" Metadata Review Count:"+usr.getReviewCount());
-						System.exit(0);
+						//System.exit(0);
 					} else if(count > usr.getReviewCount()) {
 						System.out.println("More Crawled count "
 								+ "New Reviews-> Usr:"+usr.getUsrProfileId()+"->"+usr.getName()
