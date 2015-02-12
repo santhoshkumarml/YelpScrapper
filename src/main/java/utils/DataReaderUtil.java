@@ -20,27 +20,48 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 public class DataReaderUtil {
+	
+	public static class FilterCriteria{
+		String attribute;
+		String value;
+		public String getAttribute() {
+			return attribute;
+		}
+		public void setAttribute(String attribute) {
+			this.attribute = attribute;
+		}
+		public String getValue() {
+			return value;
+		}
+		public void setValue(String value) {
+			this.value = value;
+		}
+	}
 
-	public static void replicateData(String inputDirName, String outputDirName) {
+	public static void replicateData(String inputDirName, String outputDirName, List<FilterCriteria> filters) {
 		File baseDir = new File(inputDirName);
 		if (baseDir.exists() && baseDir.isDirectory()) {
-			File[] zipDirs = baseDir.listFiles(new FileFilter() {
-				public boolean accept(File pathname) {
-					return pathname.isDirectory();
-				}
-			});
+			File[] restaruntFiles = baseDir.listFiles();
 			List<String> restaruntFileNames = new ArrayList<String>();
-			for(int i=0;i<zipDirs.length;i++) {
-				File[] restaruntFileNamesForZip = zipDirs[i].listFiles();
-				for(int j=0;j<restaruntFileNamesForZip.length;j++) {
-					restaruntFileNames.add(restaruntFileNamesForZip[j].getAbsolutePath());
-				}
+			for(int t=0;t<restaruntFiles.length;t++) {
+				restaruntFileNames.add(restaruntFiles[t].getAbsolutePath());
 			}
 			try {
 				for(String fileName : restaruntFileNames) {
 					FileReader reader = new FileReader(fileName);
 					JSONParser jsonParser = new JSONParser();
 					JSONObject businessObject = (JSONObject) jsonParser.parse(reader);
+					boolean filterCriteriaSatisfied = true;
+					for(FilterCriteria criteria : filters) {
+						String attribute = criteria.getAttribute();
+						String value = criteria.getValue();
+						if(!((String)businessObject.get(attribute)).matches(value)) {
+							filterCriteriaSatisfied = false;
+							break;
+						}
+					}
+					if(!filterCriteriaSatisfied)
+						continue;
 
 					businessObject.put("isCoreBnss", "True");
 
